@@ -1,0 +1,2 @@
+# slamdunk
+A SLAM library
