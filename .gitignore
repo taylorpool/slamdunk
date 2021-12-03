@@ -34,3 +34,4 @@
 # Our Specific Ignore files/dirs
 datasets/
 build/
+.vscode/
