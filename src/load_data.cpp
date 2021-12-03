@@ -4,16 +4,15 @@
 #include "../include/load_data.hpp"
 
 // Dataloader constructor
-Dataloader::Dataloader(std::string foobar) { dataset_name = foobar; }
+Dataloader::Dataloader(std::string name, std::string path) 
+{ 
+    // Constructor sets name and path to images
+    // it also sets up the data structure that can
+    // be queried at any time to get the next image
+    dataset_name = name;
+    dataset_path = path; 
 
-// Dataloader setter functions
-void Dataloader::set_dataset_name(std::string dataset_name_in)
-{
-    dataset_name = dataset_name_in;
-}
-void Dataloader::set_dataset_path(std::string path_in)
-{
-    dataset_path = path_in;
+    
 }
 
 // Dataloader getter functions

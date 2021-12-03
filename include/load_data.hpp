@@ -1,5 +1,10 @@
 #pragma once
 #include <string>
+#include <vector>
+
+#include"opencv2\opencv.hpp"
+// #include "opencv2/opencv.hpp"
+// #include "opencv2/highgui/highgui.hpp"
 
 class Dataloader
 {
@@ -7,11 +12,10 @@ public:
   std::string dataset_name;
   std::string dataset_path;
 
-  Dataloader(std::string foobar);
+  std::vector<cv::Mat> mat_images;
 
-  // Setters
-  void set_dataset_name(std::string dataset_name_in);
-  void set_dataset_path(std::string path_in);
+
+  Dataloader(std::string name_in, std::string path_in);
 
   // Getters
   std::string get_dataset_name();
