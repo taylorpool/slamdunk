@@ -12,22 +12,49 @@ private:
   std::string dataset_name;
   // relative path to build/ to get to dataset folder
   std::string dataset_path;
+  // number of images to use from dataset dir
+  int num_images;
 
   /* 
-    public member variable that is a vector
+    private member variable that is a vector
     of vectors. The inner vectors hold Keypoints
     for an image that has been through an opencv
     feature detection method
   */
   std::vector<std::vector<cv::KeyPoint>> feature_vec;
+  /*
+    private member var of type cv::Mat, it is
+    a vector of descriptors that are used in
+    the feature matching process
+  */
+  std::vector<std::shared_ptr<cv::Mat>> descr_vec;
+  std::vector<std::shared_ptr<cv::Mat>> temp_imgs;
+
+  /*
+    Vector of good matches between two images
+    a good match means that their exists two
+    features in the descriptors of the images
+    that have a distance lower than a threshold
+    when this occurs it is a good match and that
+    descriptor is stored in this vector member var
+  */
+  std::vector<std::vector<cv::DMatch>> all_good_matches;
+
 public:
   // Constructor
-  Dataloader(std::string name_in, std::string path_in);
+  Dataloader(std::string name_in, std::string path_in, int num_images_in);
 
   // Creates the image vector as Mat opencv datatypes
   void create_feature_vectors();
+  // Matches images based on features and descriptors
+  void match_images();
 
   // Helper Functions
+  /*
+    Get all files from dataset directory and sort
+    them in alphabetical order
+  */
+  std::vector<std::string> get_sorted_files();
 
   /*
     @param counter, this is a variable that 
@@ -53,6 +80,9 @@ public:
   */
   void save_image_with_features(cv::Mat image_in, std::vector<cv::KeyPoint> key_points, std::string save_path);
 
+  // ^^ similar to above but save images after matching
+  void save_matched_images(std::vector<cv::DMatch> good_matches, int i, bool plot);
+
   // Check if we want to plot, see above for 
   // @param details
   void plot_logic(bool plot, int counter, cv::Mat image_in, std::vector<cv::KeyPoint> key_points);
@@ -60,4 +90,5 @@ public:
   std::string get_dataset_name();
   std::string get_dataset_path();
   std::vector<std::vector<cv::KeyPoint>> get_feature_vec();
+  std::vector<std::shared_ptr<cv::Mat>> get_descr_vec();
 };
