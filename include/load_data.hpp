@@ -7,7 +7,7 @@
 
 class Dataloader
 {
-public:
+private:
   // name of the dataset we want to use
   std::string dataset_name;
   // relative path to build/ to get to dataset folder
@@ -20,7 +20,7 @@ public:
     feature detection method
   */
   std::vector<std::vector<cv::KeyPoint>> feature_vec;
-
+public:
   // Constructor
   Dataloader(std::string name_in, std::string path_in);
 
