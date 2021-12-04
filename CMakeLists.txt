@@ -19,13 +19,14 @@ target_include_directories(
     PUBLIC
     "include"
     "${OpenCV_INCLUDE_DIRS}"
+    "${Ceres_INCLUDE_DIRS}"
 )
 
 target_link_libraries(
     SLAMDunk
     PUBLIC
-    Ceres::ceres
     "${OpenCV_LIBS}"
+    "${Ceres_LIBS}"
 )
 
 add_executable(
