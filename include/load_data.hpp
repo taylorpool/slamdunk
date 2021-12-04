@@ -2,9 +2,7 @@
 #include <string>
 #include <vector>
 
-#include"opencv2\opencv.hpp"
-// #include "opencv2/opencv.hpp"
-// #include "opencv2/highgui/highgui.hpp"
+#include "opencv2/opencv.hpp"
 
 class Dataloader
 {
@@ -12,7 +10,7 @@ public:
   std::string dataset_name;
   std::string dataset_path;
 
-  std::vector<cv::Mat> mat_images;
+  std::vector<cv::Mat> image_vec;
 
 
   Dataloader(std::string name_in, std::string path_in);

@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include "../include/load_data.hpp"
-#include "./load_data.cpp"
+// #include "./load_data.cpp"
 
 int main()
 {
