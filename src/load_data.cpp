@@ -20,7 +20,7 @@ Dataloader::Dataloader(std::string name, std::string path)
 }
 
 void Dataloader::create_feature_vectors() {
-    // Delete this after our two images test
+    // TODO Delete this after our two images test
     int counter = 0;
     bool plot = false;
 
@@ -28,11 +28,8 @@ void Dataloader::create_feature_vectors() {
     
     for (const auto & entry : std::filesystem::directory_iterator(dataset_path)) 
     {
-        // --- Delete this after our two images test ---
-        if (counter > 1) {
-            break;
-        }
-        // --- Delete this after our two images test ---
+        // TODO --- Delete this after our two images test ---
+        if (counter > 1) { break; }
         
         const cv::Mat image = cv::imread(entry.path(), 0); //Load as grayscale
 
@@ -41,13 +38,9 @@ void Dataloader::create_feature_vectors() {
 
         feature_vec.push_back( keypoints );  // add keypoints to keypoint vec
 
-        // Add results to image and save.
-        if (plot)
-        {
-            std::string build_name = create_image_title(counter);
-            save_image_with_features(image, keypoints, build_name);
-        }
-        // --- Delete this after our two images test ---
+        plot_logic(plot, counter, image, keypoints);
+
+        // TODO --- Delete this after our two images test ---
         counter++;
     }
 }
@@ -67,6 +60,17 @@ std::string Dataloader::create_image_title(int counter)
     build_name += std::to_string(counter);
     build_name += ".jpg";
     return build_name;
+}
+
+void Dataloader::plot_logic(bool plot, int counter, cv::Mat image_in, std::vector<cv::KeyPoint> key_points)
+{
+    // Add results to image and save.
+    if (plot)
+    {
+        std::string build_name = create_image_title(counter);
+        save_image_with_features(image_in, key_points, build_name);
+    }
+    return;
 }
 
 // Dataloader getter functions
