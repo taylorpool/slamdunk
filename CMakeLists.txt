@@ -7,10 +7,10 @@ find_package(Eigen3 REQUIRED NO_MODULE)
 find_package(Ceres REQUIRED)
 find_package(OpenCV REQUIRED)
 
-add_library(SLAMDunk
-# Put source files here
-src/load_data.cpp
-src/slamdunk.cpp
+add_library(
+    SLAMDunk
+    # Put source files here
+    src/load_data.cpp
 )
 
 target_include_directories(
@@ -26,6 +26,26 @@ target_link_libraries(
     Ceres::ceres
     "${OpenCV_LIBS}"
 )
+
+add_executable(
+    SLAMBAM
+    src/slamdunk.cpp
+)
+
+target_include_directories(
+    SLAMBAM
+    PUBLIC
+    "include"
+    "${OpenCV_INCLUDE_DIRS}"
+)
+
+target_link_libraries(
+    SLAMBAM
+    PUBLIC 
+    SLAMDunk
+)
+
+
 
 option(MAKE_TESTS "Make Tests" OFF)
 
