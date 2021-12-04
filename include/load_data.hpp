@@ -11,7 +11,7 @@ public:
   std::string dataset_name;
   std::string dataset_path;
 
-  std::vector<cv::KeyPoint> feature_vec;
+  std::vector<std::vector<cv::KeyPoint>> feature_vec;
 
   // Constructor
   Dataloader(std::string name_in, std::string path_in);
@@ -26,4 +26,5 @@ public:
   // Getters
   std::string get_dataset_name();
   std::string get_dataset_path();
+  std::vector<std::vector<cv::KeyPoint>> get_feature_vec();
 };

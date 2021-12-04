@@ -39,6 +39,8 @@ void Dataloader::create_feature_vectors() {
         std::vector<cv::KeyPoint> keypoints;
         detector->detect(image, keypoints);
 
+        feature_vec.push_back( keypoints );  // add keypoints to keypoint vec
+
         // Add results to image and save.
         if (plot)
         {
@@ -70,3 +72,4 @@ std::string Dataloader::create_image_title(int counter)
 // Dataloader getter functions
 std::string Dataloader::get_dataset_name() { return dataset_name; }
 std::string Dataloader::get_dataset_path() { return dataset_path; }
+std::vector<std::vector<cv::KeyPoint>> Dataloader::get_feature_vec() { return feature_vec; }
