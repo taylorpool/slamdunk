@@ -6,6 +6,7 @@ find_package(Eigen3 REQUIRED NO_MODULE)
 # find_package(glog REQUIRED)
 find_package(Ceres REQUIRED)
 find_package(OpenCV REQUIRED)
+set(CMAKE_CXX_STANDARD 17)
 
 add_library(
     SLAMDunk

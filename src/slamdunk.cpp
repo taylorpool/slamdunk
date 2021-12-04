@@ -1,7 +1,6 @@
 #include <iostream>
 #include <string>
 #include "../include/load_data.hpp"
-// #include "./load_data.cpp"
 
 int main()
 {
@@ -16,5 +15,4 @@ int main()
 
     std::cout << "Dataset name: " << dataloader.get_dataset_name() << std::endl;
     std::cout << "Dataset path: " << dataloader.get_dataset_path() << std::endl;
-
 }
