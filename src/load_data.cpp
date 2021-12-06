@@ -157,3 +157,6 @@ std::string Dataloader::get_dataset_name() { return dataset_name; }
 std::string Dataloader::get_dataset_path() { return dataset_path; }
 std::vector<std::vector<cv::KeyPoint>> Dataloader::get_feature_vec() { return feature_vec; }
 std::vector<std::shared_ptr<cv::Mat>> Dataloader::get_descr_vec() { return descr_vec; }
+
+
+
