@@ -5,5 +5,3 @@ FetchContent_Declare(
     GIT_REPOSITORY https://gitlab.com/libeigen/eigen
     GIT_TAG 3147391d
 )
-
-FetchContent_MakeAvailable(googletest)
