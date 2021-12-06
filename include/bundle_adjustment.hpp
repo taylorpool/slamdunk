@@ -8,49 +8,6 @@
 namespace slamdunk
 {
 
-struct ReprojectionError
-{
-    ReprojectionError(double observed_x, double observed_y)
-        : observed_x_(observed_x), observed_y_(observed_y) {}
-
-    template <typename T>
-    bool operator()(const T* const camera, const T* const point, T* residuals) const
-    {
-        T p[3];
-        ceres::AngleAxisRotatePoint(camera, point, p);
-        p[0] += camera[3];
-        p[1] += camera[4];
-        p[2] += camera[5];
-
-        T xp = -p[0]/p[2];
-        T yp = -p[1]/p[2];
-
-        const T& l1 = camera[7];
-        const T& l2 = camera[8];
-        T r2 = xp*xp + yp*yp;
-        T distortion = 1.0 + r2*(l1 + l2*r2);
-
-        const T& focal = camera[6];
-        T predicted_x = focal*distortion*xp;
-        T predicted_y = focal*distortion*yp;
-
-        residuals[0] = predicted_x - static_cast<T>(observed_x_);
-        residuals[1] = predicted_y - static_cast<T>(observed_y_);
-
-        return true;
-    }
-
-    static ceres::CostFunction* Create(const double observed_x, const double observed_y)
-    {
-        return (new ceres::AutoDiffCostFunction<ReprojectionError,2,9,3>(
-            new ReprojectionError(observed_x, observed_y)
-        ));
-    }
-
-    private:
-        double observed_x_;
-        double observed_y_;
-};
 
 struct Observation
 {
@@ -91,5 +48,49 @@ enum Point
     x,
     y,
     z
+};
+
+struct ReprojectionError
+{
+    ReprojectionError(double observed_x, double observed_y)
+        : observed_x_(observed_x), observed_y_(observed_y) {}
+
+    template <typename T>
+    bool operator()(const T* const camera, const T* const point, T* residuals) const
+    {
+        T p[3];
+        ceres::AngleAxisRotatePoint(camera, point, p);
+        p[Point::x] += camera[Camera::translate0];
+        p[Point::y] += camera[Camera::translate1];
+        p[Point::z] += camera[Camera::translate2];
+
+        T xp = -p[Point::x]/p[Point::z];
+        T yp = -p[Point::y]/p[Point::z];
+
+        const T& l1 = camera[Camera::radial0];
+        const T& l2 = camera[Camera::radial1];
+        T r2 = xp*xp + yp*yp;
+        T distortion = 1.0 + r2*(l1 + l2*r2);
+
+        const T& focal = camera[Camera::focal];
+        T predicted_x = focal*distortion*xp;
+        T predicted_y = focal*distortion*yp;
+
+        residuals[Point::x] = predicted_x - static_cast<T>(observed_x_);
+        residuals[Point::y] = predicted_y - static_cast<T>(observed_y_);
+
+        return true;
+    }
+
+    static ceres::CostFunction* Create(const double observed_x, const double observed_y)
+    {
+        return (new ceres::AutoDiffCostFunction<ReprojectionError,2,9,3>(
+            new ReprojectionError(observed_x, observed_y)
+        ));
+    }
+
+    private:
+        double observed_x_;
+        double observed_y_;
 };
 }
