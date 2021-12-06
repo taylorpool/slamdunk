@@ -1,11 +1,4 @@
-#include <iostream>
-#include <string>
-#include "../include/load_data.hpp"
-#include "ceres/ceres.h"
-
-using ceres::Solve;     // I put this here because I think Ceres is working on
-                        // my machine, no errors are thrown and Ceres is installed
-                        // locally, maybe we just build locally and work on factor graph stuff...?
+#include "slamdunk.hpp"
 
 int main()
 {

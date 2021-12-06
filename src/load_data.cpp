@@ -2,7 +2,7 @@
 #include <string>
 #include <filesystem>
 
-#include "../include/load_data.hpp"
+#include "load_data.hpp"
 
 // namespace fs = std::filesystem;
 

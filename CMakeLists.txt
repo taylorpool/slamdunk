@@ -1,73 +1,93 @@
 cmake_minimum_required(VERSION 3.15)
 project(SLAMDunk)
+include(FetchContent)
 
-find_package(Eigen3 REQUIRED NO_MODULE)
-find_package(Ceres REQUIRED)
-find_package(OpenCV REQUIRED)
-
-set(CMAKE_CXX_STANDARD 17)
+find_package(Ceres CONFIG REQUIRED)
+find_package(OpenCV CONFIG REQUIRED)
 
 add_library(
     SLAMDunk
-    src/load_data.cpp
-)
-
-target_include_directories(
-    SLAMDunk
-    PUBLIC
-    "include"
-    "${OpenCV_INCLUDE_DIRS}"
-    "${Ceres_INCLUDE_DIRS}"
-)
-
-target_link_libraries(
-    SLAMDunk
-    PUBLIC
-    "${OpenCV_LIBS}"
-    "${Ceres_LIBS}"
-)
-
-add_executable(
-    SLAMBAM
     src/slamdunk.cpp
 )
 
 target_include_directories(
-    SLAMBAM
+    SLAMDunk
     PUBLIC
     "include"
-    "${OpenCV_INCLUDE_DIRS}"
 )
 
 target_link_libraries(
-    SLAMBAM
-    PUBLIC 
     SLAMDunk
+    PRIVATE
+    ceres
+    Ceres::ceres
 )
 
+add_library(
+    BundleAdjustment
+    INTERFACE
+)
 
+target_include_directories(
+    BundleAdjustment
+    INTERFACE
+    "include"
+)
 
-option(MAKE_TESTS "Make Tests" ON)
+target_link_libraries(
+    BundleAdjustment
+    INTERFACE
+    ceres
+    Ceres::ceres
+)
+
+option(MAKE_TESTS "Make tests" ON)
 
 if(${MAKE_TESTS})
-    include(FetchContent)
-    FetchContent_Declare(
-    googletest
-    URL https://github.com/google/googletest/archive/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip
+
+    add_executable(
+        demo_bundle
+        test/demo_bundle_adjustment.cpp
     )
-    # For Windows: Prevent overriding the parent project's compiler/linker settings
+
+    target_link_libraries(
+        demo_bundle
+        BundleAdjustment
+    )
+
+    add_executable(
+        ceres_tests
+        test/test_ceres.cpp
+    )
+
+    target_link_libraries(
+        ceres_tests
+        gtest_main
+        ceres
+        Ceres::ceres
+    )
+
+    FetchContent_Declare(
+        googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG e2239ee6043f73722e7aa812a459f54a28552929
+    )
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
     FetchContent_MakeAvailable(googletest)
 
     enable_testing()
 
     add_executable(
-        ceres_test
-        test/test_ceres.cpp
+        tests
+        test/test_slamdunk.cpp
     )
-    target_link_libraries(ceres_test gtest_main)
+    
+    target_link_libraries(
+        tests 
+        gtest_main
+    )
 
     include(GoogleTest)
-    gtest_discover_tests(ceres_test)
+    gtest_discover_tests(tests)
 
 endif()
