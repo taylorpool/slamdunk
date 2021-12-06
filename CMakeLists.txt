@@ -3,15 +3,40 @@ project(SLAMDunk)
 include(FetchContent)
 
 find_package(Ceres CONFIG REQUIRED)
+find_package(OpenCV CONFIG REQUIRED)
 
 add_library(
     SLAMDunk
     src/slamdunk.cpp
 )
 
+target_include_directories(
+    SLAMDunk
+    PUBLIC
+    "include"
+)
+
 target_link_libraries(
     SLAMDunk
     PRIVATE
+    ceres
+    Ceres::ceres
+)
+
+add_library(
+    BundleAdjustment
+    INTERFACE
+)
+
+target_include_directories(
+    BundleAdjustment
+    INTERFACE
+    "include"
+)
+
+target_link_libraries(
+    BundleAdjustment
+    INTERFACE
     ceres
     Ceres::ceres
 )
@@ -27,8 +52,7 @@ if(${MAKE_TESTS})
 
     target_link_libraries(
         demo_bundle
-        ceres
-        Ceres::ceres
+        BundleAdjustment
     )
 
     add_executable(
