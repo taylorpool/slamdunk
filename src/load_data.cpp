@@ -102,6 +102,12 @@ void Dataloader::create_feature_vectors()
         std::string raw_name = base_filename.substr(0, lastindex); 
         std::cout << "raw_name: " << raw_name << std::endl;
 
+        // GET CAMERA POSES
+        std::vector<double> curr_cam_poses = grab_camera_poses(raw_name);
+        camera_poses.push_back(curr_cam_poses);
+
+
+        // GET DEPTH
         std::string depth_filename = find_depth_filename(raw_name);
         std::cout << "Depth filename found: " << depth_filename << std::endl << std::endl;
         if (depth_filename == "NO FILE") { throw std::invalid_argument( "*** NO DEPTH FILE FOUND ***" ); }
@@ -113,16 +119,18 @@ void Dataloader::create_feature_vectors()
         detector->detect(image, keypoints);
         descriptor->compute(image, keypoints, desc);
 
+        std::vector<double> img_depths;
         for (int j=0; j < keypoints.size(); j++)
         {
             int x = keypoints[j].pt.x;
             int y = keypoints[j].pt.y;
             int depth = find_depth_in_image(depth_filename, x, y);
+            img_depths.push_back(depth); // add key feature depth to vec
 
         }
-        // TODO now we need to add the depth to the vector of vectors called feature depth *******************
+        feature_depth.push_back(img_depths); // add depth vec to all depths vec
 
-        
+
         //cv::Point2f first_point = keypoints[0].pt;
         //std::cout << "\nKey point xy: " << first_point << std::endl;
 
@@ -250,14 +258,14 @@ void Dataloader::create_dataset()
     for (int i=0; i < all_good_matches.size(); i++)
     {
         std::vector<cv::DMatch> curr_match = all_good_matches[i];    
-        std::cout << "Size of match object: " << curr_match.size() << std::endl;
+        //std::cout << "Size of match object: " << curr_match.size() << std::endl;
         // If the key does not yet exist in our map
         if(i == 0)
         {
             if(match_map.count(i) == 0)
             {
                 match_map[i] = std::vector<Match>();
-                std::cout << "Creating empty vector" << std::endl;
+                //std::cout << "Creating empty vector" << std::endl;
             }
             // For zeroeth camera, we add all matched feature points
             // between cameras 0 and 1 and increment point counter with
@@ -277,7 +285,7 @@ void Dataloader::create_dataset()
         if(match_map.count(i) == 0)
         {
             match_map[i] = std::vector<Match>();
-            std::cout << "Creating empty vector" << std::endl;
+            //std::cout << "Creating empty vector" << std::endl;
         }
         int last_key = i-1;
         auto last_vector = match_map[last_key];
@@ -313,12 +321,64 @@ void Dataloader::create_dataset()
         }
         // Iterate through the last vector
     }
-    std::cout << match_map.size() << std::endl;
+    std::cout << "Match map size: " << match_map.size() << std::endl;
+    std::cout << "Camera pose size: " << camera_poses.size() << std::endl;
 
     // std::ifstream fin("./dataset/feature_points.txt");
 
 
 }
+
+std::vector<double> Dataloader::grab_camera_poses(std::string file_name_in)
+{
+    /*
+        # ground truth trajectory
+        # file: 'rgbd_dataset_freiburg1_xyz.bag'
+        # timestamp tx ty tz qx qy qz qw
+    */
+    std::string ground_truth_path = "../datasets/rgbd_dataset_freiburg1_xyz/groundtruth.txt";
+    std::ifstream file(ground_truth_path);
+    std::string string_in;
+
+    double file_name_in_double = std::stod(file_name_in); // converts incoming file name to double
+
+    double closest_num = std::numeric_limits<double>::infinity();
+    std::vector<double> trans_and_quats;
+    
+    while (std::getline(file, string_in)) {
+	    std::istringstream iss(string_in);
+        bool record_next = false;
+	    for (std::string s; iss >> s; )
+        {
+            if (record_next) // if new closest line from groundtruth file
+            { 
+                trans_and_quats.push_back( std::stod(s) ); // add the double value to return vector
+            }
+            else
+            {
+                double time_stamp = std::stod(s); //  converts string to double, this is only ever timestamp
+                double diff = std::abs(( file_name_in_double - time_stamp ));
+                if (diff < closest_num)
+                {
+                    closest_num = diff; // allows us to update closest timestamp to input file
+                    record_next = true; // allows us to record the closest file name
+                    trans_and_quats.clear(); // clears the vector of the last closest stuff to make room for the new stuff
+                }
+            }
+            if (!record_next) { break; } // allows us to move on if the timestapmp we just looked at isn't close
+            
+        }
+    }
+    // std::cout << "\nCurrent results for trans quats: " << std::endl;
+    // for (int i=0; i<trans_and_quats.size(); i++)
+    // {
+    //     std::cout << std::to_string(trans_and_quats[i]) << std::endl;
+    // }
+    return trans_and_quats;
+}
+
+
+
 // Dataloader getter functions
 std::string Dataloader::get_dataset_name() { return dataset_name; }
 std::string Dataloader::get_dataset_path() { return dataset_path; }
