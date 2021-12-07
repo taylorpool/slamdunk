@@ -22,6 +22,9 @@ private:
   */
   std::vector<std::vector<double>> feature_depth;
 
+  std::vector<std::vector<double>> camera_poses;
+
+
   /* 
     private member variable that is a vector
     of vectors. The inner vectors hold Keypoints
@@ -91,6 +94,8 @@ public:
 
   std::string find_depth_filename(std::string file_in);
   int find_depth_in_image(std::string depth_name, int x, int y);
+
+  std::vector<double> grab_camera_poses(std::string file_in);
 
   // ^^ similar to above but save images after matching
   void save_matched_images(std::vector<cv::DMatch> good_matches, int i, bool plot);
