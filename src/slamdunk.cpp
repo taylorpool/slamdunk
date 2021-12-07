@@ -1,9 +1,9 @@
 #include <iostream>
 #include <string>
 #include "../include/load_data.hpp"
-#include "ceres/ceres.h"
+//#include "ceres/ceres.h"
 
-using ceres::Solve;     // I put this here because I think Ceres is working on
+//using ceres::Solve;     // I put this here because I think Ceres is working on
                         // my machine, no errors are thrown and Ceres is installed
                         // locally, maybe we just build locally and work on factor graph stuff...?
 
@@ -55,5 +55,5 @@ int main()
     std::cout << "Dataset name: " << dataloader.get_dataset_name() << std::endl;
     std::cout << "Dataset path: " << dataloader.get_dataset_path() << std::endl;
 
-
+    std::cout << "\ndescr_vec[0].queryIdx: " << dataloader.get_descr_vec()[0]._distance << std::endl;
 }
