@@ -48,5 +48,5 @@ int main()
     std::cout << "Dataset name: " << dataloader.get_dataset_name() << std::endl;
     std::cout << "Dataset path: " << dataloader.get_dataset_path() << std::endl;
 
-
+    std::cout << "\ndescr_vec[0].queryIdx: " << dataloader.get_descr_vec()[0]._distance << std::endl;
 }
