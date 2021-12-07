@@ -1,4 +1,5 @@
 #include <iostream>
+#include <map>
 #include <string>
 #include <filesystem>
 
@@ -152,11 +153,89 @@ void Dataloader::plot_logic(bool plot, int counter, cv::Mat image_in, std::vecto
     return;
 }
 
+void Dataloader::create_dataset()
+{
+    using Match = std::vector<int>;
+    std::map<int, std::vector<Match>> match_map;
+
+    int point_counter = 0;
+    for (int i=0; i < all_good_matches.size(); i++)
+    {
+        std::vector<cv::DMatch> curr_match = all_good_matches[i];    
+        std::cout << "Size of match object: " << curr_match.size() << std::endl;
+        // If the key does not yet exist in our map
+        if(i == 0)
+        {
+            if(match_map.count(i) == 0)
+            {
+                match_map[i] = std::vector<Match>();
+                std::cout << "Creating empty vector" << std::endl;
+            }
+            // For zeroeth camera, we add all matched feature points
+            // between cameras 0 and 1 and increment point counter with
+            // every matched feature
+            for (int j=0; j<curr_match.size(); j++)
+            {
+                int curr_kf_idx = curr_match[j].trainIdx;
+                int next_kf_idx = curr_match[j].queryIdx;
+                match_map[i].push_back(Match({curr_kf_idx, next_kf_idx, point_counter}));
+                ++point_counter;
+            }
+            // Pretend like we iterated to camera 2
+            ++i;
+        }
+        // Everything but zeroeth camera
+        // If we have not seen this camera before
+        if(match_map.count(i) == 0)
+        {
+            match_map[i] = std::vector<Match>();
+            std::cout << "Creating empty vector" << std::endl;
+        }
+        int last_key = i-1;
+        auto last_vector = match_map[last_key];
+        // Iterates over all key point features of
+        // the two images of interest
+        for (int j = 0; j < curr_match.size(); j++)
+        {
+            int curr_kf_idx = curr_match[j].trainIdx;
+            int next_kf_idx = curr_match[j].queryIdx;
+            for(int k = 0; k < last_vector.size(); ++k)
+            {
+                // Set to correctly consolidate duplicate points
+                // between camera matches
+                int point_number = -1;
+                int parent_query_kf = last_vector[k][1];
+                // Check if current feature match has already
+                // been found
+                if(parent_query_kf == curr_kf_idx)
+                {
+                    point_number = last_vector[k][2];
+                    match_map[i].push_back(Match({
+                        curr_kf_idx, next_kf_idx, point_number}));
+                }
+                // Check if there is a new point according
+                // to our given feature indices
+                if(point_number == -1)
+                {
+                    match_map[i].push_back(Match({
+                        curr_kf_idx, next_kf_idx, point_counter}));
+                    ++point_counter;
+                }
+            }
+        }
+        // Iterate through the last vector
+    }
+    std::cout << match_map.size() << std::endl;
+
+    // std::ifstream fin("./dataset/feature_points.txt");
+
+
+}
 // Dataloader getter functions
 std::string Dataloader::get_dataset_name() { return dataset_name; }
 std::string Dataloader::get_dataset_path() { return dataset_path; }
 std::vector<std::vector<cv::KeyPoint>> Dataloader::get_feature_vec() { return feature_vec; }
 std::vector<std::shared_ptr<cv::Mat>> Dataloader::get_descr_vec() { return descr_vec; }
-
+std::vector<std::vector<cv::DMatch>> Dataloader::get_good_matches() { return all_good_matches; }
 
 
