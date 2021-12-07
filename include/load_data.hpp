@@ -67,6 +67,8 @@ public:
   */
   std::string create_image_title(int counter);
 
+  void create_dataset();
+
   /*
     @param image_in, a specific loaded image of type cv::Mat
     @param keypoints is vector of vectors of keypoints of the 
@@ -91,4 +93,5 @@ public:
   std::string get_dataset_path();
   std::vector<std::vector<cv::KeyPoint>> get_feature_vec();
   std::vector<std::shared_ptr<cv::Mat>> get_descr_vec();
+  std::vector<std::vector<cv::DMatch>> get_good_matches();
 };

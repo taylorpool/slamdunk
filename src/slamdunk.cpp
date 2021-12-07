@@ -8,7 +8,7 @@ int main()
     /* -------- Params -------- */
     std::string dataset_name_in = "xyz_test_dataset";
     std::string dataset_path_in = "../datasets/rgbd_dataset_freiburg1_xyz/rgb";
-    int num_images_to_use = 2;  // tested on 5 images and no errors were thrown
+    int num_images_to_use = 1;  // tested on 5 images and no errors were thrown
 
     // note that the saving of images is currently turned off
     // note that if you want to save the key point and mathing images,
@@ -48,5 +48,35 @@ int main()
     std::cout << "Dataset name: " << dataloader.get_dataset_name() << std::endl;
     std::cout << "Dataset path: " << dataloader.get_dataset_path() << std::endl;
 
-    std::cout << "\ndescr_vec[0].queryIdx: " << dataloader.get_descr_vec()[0]._distance << std::endl;
+
+    // LOOPS THROUGH ALL 2D POINTS IN EACH FEATURE VECTOR
+    std::vector<std::vector<cv::KeyPoint>> all_feat_vecs = dataloader.get_feature_vec();
+    for (int i=0; i < all_feat_vecs.size(); i++)
+    {   
+        std::vector<cv::KeyPoint> curr_key = all_feat_vecs[i];
+        for (int j=0; j<curr_key.size(); j++)
+        {
+            std::cout << "j: " << std::to_string(j) << "\tval: " << curr_key[j].pt << std::endl;  // accesses all the points
+        }
+        std::cout << "i: " << std::to_string(i) << std::endl;
+    }
+
+
+    // LOOPS THROUGH ALL 2D POINTS IN EACH DESCRIPTOR VECTOR
+    std::vector<std::shared_ptr<cv::Mat>> desc_vec = dataloader.get_descr_vec();
+    for (int i=0; i < desc_vec.size(); i++)
+    {
+        cv::Mat mat_descr = *desc_vec[i];
+        std::cout << "i: " << std::to_string(i) << "\t mat_descr[i]: " << mat_descr.size() << std::endl;
+    }
+
+
+    // GET ALL COORDINATES
+    // std::vector<cv::KeyPoint::pt> kp_vec;
+
+    // LOOPS THROUGH ALL 2D POINTS IN EACH GOOD MATCH VECTOR
+    std::vector<std::vector<cv::DMatch>> all_matches = dataloader.get_good_matches();
+    std::cout << "Size of all_good_matches vector: " << all_matches.size() << std::endl;
+
+    dataloader.create_dataset();
 }
