@@ -2,6 +2,12 @@
 #include <map>
 #include <string>
 #include <filesystem>
+#include <sstream>
+#include <ostream>
+#include <istream>
+#include <fstream>
+#include <cstdlib>
+#include <stdexcept>
 
 #include "../include/load_data.hpp"
 
@@ -69,19 +75,56 @@ void Dataloader::create_feature_vectors()
     cv::Ptr<cv::DescriptorExtractor> descriptor = cv::ORB::create();
     
     std::vector<std::string> all_sorted_files = get_sorted_files();
+    /*
+        # depth maps
+        # file: 'rgbd_dataset_freiburg1_xyz.bag'
+        # timestamp filename
+        1305031102.160407 depth/1305031102.160407.png
+        1305031102.194330 depth/1305031102.194330.png
+    */
 
+    // loops through each image individually // note that for
+    // all these push_backs order must be maintained
     int file_vec_size = all_sorted_files.size();
     for (int i=0; i < file_vec_size; i++)
     {   
         // std::cout << all_sorted_files[i] << std::endl;
         if (counter > num_images) { break; }
-        
+
+        std::string rgb_image_name = all_sorted_files[i];
+
+        // find the filename and extension from path
+        int index = rgb_image_name.find_last_of("/\\");
+        std::string base_filename = rgb_image_name.substr(index+1);
+
+        // remove file extension
+        size_t lastindex = base_filename.find_last_of("."); 
+        std::string raw_name = base_filename.substr(0, lastindex); 
+        std::cout << "raw_name: " << raw_name << std::endl;
+
+        std::string depth_filename = find_depth_filename(raw_name);
+        std::cout << "Depth filename found: " << depth_filename << std::endl << std::endl;
+        if (depth_filename == "NO FILE") { throw std::invalid_argument( "*** NO DEPTH FILE FOUND ***" ); }
+
         const cv::Mat image = cv::imread(all_sorted_files[i], 0); //Load as grayscale
         std::vector<cv::KeyPoint> keypoints;
         cv::Mat desc;
 
         detector->detect(image, keypoints);
         descriptor->compute(image, keypoints, desc);
+
+        for (int j=0; j < keypoints.size(); j++)
+        {
+            int x = keypoints[j].pt.x;
+            int y = keypoints[j].pt.y;
+            int depth = find_depth_in_image(depth_filename, x, y);
+
+        }
+        // TODO now we need to add the depth to the vector of vectors called feature depth *******************
+
+        
+        //cv::Point2f first_point = keypoints[0].pt;
+        //std::cout << "\nKey point xy: " << first_point << std::endl;
 
         feature_vec.push_back( keypoints );  // add keypoints to keypoint vec
         descr_vec.push_back(std::make_shared<cv::Mat>(desc)); // add descr to vec
@@ -93,6 +136,51 @@ void Dataloader::create_feature_vectors()
 }
 
 // Helper Functions
+int Dataloader::find_depth_in_image(std::string depth_name, int x, int y)
+{
+    std::string full_path = "../datasets/rgbd_dataset_freiburg1_xyz/" + depth_name; // creates full path
+    const cv::Mat image = cv::imread(full_path, 0); //Load as grayscale
+    int depth = (int)image.at<uchar>(x, y);
+    return depth;
+}
+
+
+std::string Dataloader::find_depth_filename(std::string file_name_in)
+{
+    std::string depth_file = "../datasets/rgbd_dataset_freiburg1_xyz/depth.txt";
+    std::ifstream file(depth_file);
+    std::string string_in;
+    //std::cout << "file name in: " << file_name_in << std::endl;
+
+    double file_name_in_double = std::stod(file_name_in); // converts incoming file name to double
+
+    double closest_num = std::numeric_limits<double>::infinity();
+    std::string closest_name = "NO FILE";
+    
+    while (std::getline(file, string_in)) {
+        //std::cout << "\nFile name in the find depth filename function: " << file_name_in << std::endl;
+	    std::istringstream iss(string_in);
+        bool record_next = false;
+	    for (std::string s; iss >> s; )
+        {
+            if (record_next) { closest_name = s; }
+            else
+            {
+                double time_stamp = std::stod(s); //  converts string to double
+                double diff = std::abs(( file_name_in_double - time_stamp ));
+                if (diff < closest_num)
+                {
+                    closest_num = diff; // allows us to update closest timestamp to input file
+                    record_next = true; // allows us to record the closest file name
+                }
+            }
+            if (!record_next) { break; } // allows us to move on if the timestapmp we just looked at isn't close
+            
+        }
+    }
+    return closest_name;
+}
+
 std::vector<std::string> Dataloader::get_sorted_files() 
 {
     std::vector<std::string> all_files;
@@ -237,5 +325,5 @@ std::string Dataloader::get_dataset_path() { return dataset_path; }
 std::vector<std::vector<cv::KeyPoint>> Dataloader::get_feature_vec() { return feature_vec; }
 std::vector<std::shared_ptr<cv::Mat>> Dataloader::get_descr_vec() { return descr_vec; }
 std::vector<std::vector<cv::DMatch>> Dataloader::get_good_matches() { return all_good_matches; }
-
+std::vector<std::vector<double>> Dataloader::get_depth_vector() { return feature_depth; }
 

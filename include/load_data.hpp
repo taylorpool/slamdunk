@@ -15,6 +15,13 @@ private:
   // number of images to use from dataset dir
   int num_images;
 
+  
+  /*
+    Stores each images feature vector depth, so there
+    is a depth value for each feature for each image
+  */
+  std::vector<std::vector<double>> feature_depth;
+
   /* 
     private member variable that is a vector
     of vectors. The inner vectors hold Keypoints
@@ -82,6 +89,9 @@ public:
   */
   void save_image_with_features(cv::Mat image_in, std::vector<cv::KeyPoint> key_points, std::string save_path);
 
+  std::string find_depth_filename(std::string file_in);
+  int find_depth_in_image(std::string depth_name, int x, int y);
+
   // ^^ similar to above but save images after matching
   void save_matched_images(std::vector<cv::DMatch> good_matches, int i, bool plot);
 
@@ -94,4 +104,5 @@ public:
   std::vector<std::vector<cv::KeyPoint>> get_feature_vec();
   std::vector<std::shared_ptr<cv::Mat>> get_descr_vec();
   std::vector<std::vector<cv::DMatch>> get_good_matches();
+  std::vector<std::vector<double>> get_depth_vector();
 };
