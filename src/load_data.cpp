@@ -100,7 +100,7 @@ void Dataloader::create_feature_vectors()
         // remove file extension
         size_t lastindex = base_filename.find_last_of("."); 
         std::string raw_name = base_filename.substr(0, lastindex); 
-        std::cout << "raw_name: " << raw_name << std::endl;
+        //std::cout << "raw_name: " << raw_name << std::endl;
 
         // GET CAMERA POSES
         std::vector<double> curr_cam_poses = grab_camera_poses(raw_name);
@@ -109,7 +109,7 @@ void Dataloader::create_feature_vectors()
 
         // GET DEPTH
         std::string depth_filename = find_depth_filename(raw_name);
-        std::cout << "Depth filename found: " << depth_filename << std::endl << std::endl;
+        //std::cout << "Depth filename found: " << depth_filename << std::endl << std::endl;
         if (depth_filename == "NO FILE") { throw std::invalid_argument( "*** NO DEPTH FILE FOUND ***" ); }
 
         const cv::Mat image = cv::imread(all_sorted_files[i], 0); //Load as grayscale
@@ -266,7 +266,7 @@ void Dataloader::create_dataset()
             if(match_map.count(i) == 0)
             {
                 match_map[i] = std::vector<Match>();
-                std::cout << "Creating empty vector" << std::endl;
+                //std::cout << "Creating empty vector" << std::endl;
             }
             // For zeroeth camera, we add all matched feature points
             // between cameras 0 and 1 and increment point counter with
@@ -287,7 +287,7 @@ void Dataloader::create_dataset()
         if(match_map.count(i) == 0)
         {
             match_map[i] = std::vector<Match>();
-            std::cout << "Creating empty vector" << std::endl;
+            //std::cout << "Creating empty vector" << std::endl;
         }
         int last_key = i-1;
         auto last_vector = match_map[last_key];
@@ -310,7 +310,7 @@ void Dataloader::create_dataset()
                 if(parent_query_kf == curr_kf_idx)
                 { 
                     point_number = last_vector[k][2];
-                    std::cout << "parent == cur " << std::to_string(curr_kf_idx) << " " << std::to_string(next_kf_idx) << " " << std::to_string(point_number) << std::endl;
+                    //std::cout << "parent == cur " << std::to_string(curr_kf_idx) << " " << std::to_string(next_kf_idx) << " " << std::to_string(point_number) << std::endl;
                     match_map[i].push_back(Match({
                         curr_kf_idx, next_kf_idx, point_number}));
                     ++obs_counter;
@@ -321,7 +321,7 @@ void Dataloader::create_dataset()
             }
             if(point_number == -1)
             {
-                std::cout << "Point counter in point_number == -1: " << std::to_string(point_counter) << std::endl;
+                //std::cout << "Point counter in point_number == -1: " << std::to_string(point_counter) << std::endl;
                 match_map[i].push_back(Match({
                     curr_kf_idx, next_kf_idx, point_counter}));
                 ++obs_counter;
@@ -335,7 +335,7 @@ void Dataloader::create_dataset()
 
 
     // OPEN FILE TO WRITE TO
-    std::ofstream fout("../datasets/out_feature_points.txt");
+    std::ofstream fout("../datasets/90_out_feature_points.txt");
     fout << camera_poses.size() << " " << point_counter << " " << obs_counter << "\n";
 
 
@@ -348,13 +348,13 @@ void Dataloader::create_dataset()
         int img_idx =  iter->first; // int
         std::vector<Match> match_point_vec = iter->second; // vector of vectors of ints which are curr_kf_idx, next_kf_idx, point_number
         std::cout << "\nCurrent Image index: " << std::to_string(img_idx) << std::endl;
-        std::cout << "All x, y, p in curr image: " << std::endl;
+        //std::cout << "All x, y, p in curr image: " << std::endl;
         for (int jk=0; jk<match_point_vec.size(); jk++)
         {
             int key_feature_idx_1 = match_point_vec[jk][0];
             // int key_feature_idx_2 = match_point_vec[jk][1];
 
-            std::cout << "\nkey point idx 1: " <<  key_feature_idx_1 << std::endl;
+            //std::cout << "\nkey point idx 1: " <<  key_feature_idx_1 << std::endl;
             // std::cout << "key point idx 2: " <<  key_feature_idx_2 << std::endl;
 
             int associated_point = match_point_vec[jk][2];
@@ -363,8 +363,8 @@ void Dataloader::create_dataset()
             std::vector<cv::KeyPoint> feature_vec_left = feature_vec[img_idx];
             std::vector<double> depth_vec = feature_depth[img_idx];
 
-            std::cout << "feature_vec_left size: " <<  feature_vec_left.size() << std::endl;
-            std::cout << "depth_vec size: " <<  depth_vec.size() << std::endl;
+            //std::cout << "feature_vec_left size: " <<  feature_vec_left.size() << std::endl;
+            //std::cout << "depth_vec size: " <<  depth_vec.size() << std::endl;
 
             cv::KeyPoint key_point = feature_vec_left[key_feature_idx_1];
 
@@ -375,8 +375,8 @@ void Dataloader::create_dataset()
             // Write to file, observations:
             fout << img_idx << " " << associated_point << " " << k1_x << " " << k1_y << "\n";
             
-            std::cout << "Key point one x: " << k1_x << " Key point one y: " << k1_y << std::endl;
-            std::cout << "Key point depth: " << depth << std::endl;
+            //std::cout << "Key point one x: " << k1_x << " Key point one y: " << k1_y << std::endl;
+            //std::cout << "Key point depth: " << depth << std::endl;
             
             double factor = 5000;
             double fx = 525.0; 
@@ -388,7 +388,7 @@ void Dataloader::create_dataset()
             double Z = depth / factor;
             double X = (k1_x - cx) * Z / fx;
             double Y = (k1_y - cy) * Z / fy;
-            std::cout << "X: " << std::to_string(X) << " Y: " << std::to_string(Y) << " Z: " << std::to_string(Z) << std::endl;
+            //std::cout << "X: " << std::to_string(X) << " Y: " << std::to_string(Y) << " Z: " << std::to_string(Z) << std::endl;
 
             // store XYZ in camera frame
             std::vector<double> temp_holder_vector;

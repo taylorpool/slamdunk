@@ -8,7 +8,7 @@ int main()
     /* -------- Params -------- */
     std::string dataset_name_in = "xyz_test_dataset";
     std::string dataset_path_in = "../datasets/rgbd_dataset_freiburg1_xyz/rgb";
-    int num_images_to_use = 1;  // tested on 5 images and no errors were thrown
+    int num_images_to_use = 90;  // tested on 5 images and no errors were thrown
 
     // note that the saving of images is currently turned off
     // note that if you want to save the key point and mathing images,

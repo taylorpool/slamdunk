@@ -71,7 +71,7 @@ def read_data(file_name):
         for _ in range(n_cameras):
             xyz_cameras.append(f.readline().split())
 
-    factor = 1#=.0001
+    factor = 1#.01
     px = [factor * float(p_lst[0]) for p_lst in xyz_points]
     py = [factor * float(p_lst[1]) for p_lst in xyz_points]
     pz = [factor * float(p_lst[2]) for p_lst in xyz_points]
@@ -83,7 +83,14 @@ def read_data(file_name):
 
 # file_name = "./data_fake.txt"
 # file_name = "./solved-49-7776.txt"
-file_name = "./problem-49-7776-pre.txt-solved.txt"
+# file_name = "./problem-49-7776-pre.txt-solved.txt"
+# file_name = "./out_feature_points.txt-solved.txt"
+# file_name = "./five_images_out_feature_points.txt-solved.txt"
+# file_name = "./03_out_feature_points.txt-solved.txt"
+# file_name = "./02_five_images_out_feature_points.txt-solved.txt"
+
+# 2 - 100
+file_name = "./100_out_feature_points.txt-solved.txt"
 
 px, py, pz, cx, cy, cz = read_data(file_name)
 print(f"px:\n{max(px)}")
@@ -102,60 +109,31 @@ print(f"cx:\n{min(cx)}")
 print(f"cy:\n{min(cy)}")
 print(f"cx:\n{min(cz)}")
 
-# LADY
-# lady_path = './data_ladybug'
-lady_path = './data_ladybug.txt'
-camera_params, points_3d, camera_indices, point_indices, points_2d = read_bal_data(lady_path)
-
-print(f"camera_params shape: {camera_params.shape}")
-num_cams = 1
-reduced_cam = camera_params[0:num_cams,:]
-rot_start, rot_end = 0, 3
-tra_start, tra_end = 3, 6
-rot_vec = reduced_cam[:, rot_start:rot_end]
-tra_vec = reduced_cam[:, tra_start:tra_end]
-print(f"reduced_cam shape: {reduced_cam.shape}")
-print(f"rot_vec shape: {rot_vec.shape}")
-print(f"tra_vec shape: {tra_vec.shape}")
-tx, ty, tz = tra_vec[:,0].tolist(), tra_vec[:,1].tolist(), tra_vec[:,2].tolist()
-
-print(f"points_3d shape: {points_3d.shape}")
-gx, gy, gz = points_3d[:,0].tolist(), points_3d[:,1].tolist(), points_3d[:,2].tolist()
-
-# get grab first n camera corresponding 3D points
-gx, gy, gz = get_n_cam_points(gx, gy, gz, points_3d, camera_indices, point_indices)
-
-
-print(f"gx:\n{max(gx)}")
-print(f"gy:\n{max(gy)}")
-print(f"gx:\n{max(gz)}")
-
-print(f"gx:\n{min(gx)}")
-print(f"gy:\n{min(gy)}")
-print(f"gx:\n{min(gz)}")
-# LADY
-
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 
 cr = (0, 1)  # camera range
 
-#ax.scatter(px, py, pz, c='r', marker='o')
-#ax.scatter(cx, cy, cz, c='black', marker='s')
-ax.scatter(cx[cr[0]:cr[1]], cy[cr[0]:cr[1]], cz[cr[0]:cr[1]], c='black', marker='s')
 
-# ground truth Data
-ax.scatter(gx, gy, gz, c='blue', marker='o')
-ax.scatter(tx, ty, tz, c='green', marker='s')
+
+ax.scatter(px, py, pz, c='r', marker='o', s=4)
+ax.scatter(cx, cy, cz, c='black', marker='s')
+
+cm_f = 1#0.01
+
+#ax.scatter(cm_f*1.3563, cm_f*0.6305, cm_f*1.6380, c='m', marker='s') # ground truth first camera time-stamp 
+#ax.scatter(cm_f*1.3791, cm_f*0.6324, cm_f*1.6987, c='m', marker='s') # ground truth first camera time-stamp
+#ax.scatter(cx[cr[0]:cr[1]], cy[cr[0]:cr[1]], cz[cr[0]:cr[1]], c='black', marker='s')
+
 
 ax.set_xlabel('X Label')
 ax.set_ylabel('Y Label')
 ax.set_zlabel('Z Label')
 
-lmin = -2
-lmax = 2
-ax.set_xlim(lmin, lmax)
-ax.set_ylim(lmin, lmax)
-ax.set_zlim(lmin, lmax)
+lmin = -1
+lmax = 3
+ax.set_xlim(lmin, 3)
+ax.set_ylim(lmin, 3)
+ax.set_zlim(0, lmax)
 
 plt.show()
