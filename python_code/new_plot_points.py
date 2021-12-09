@@ -65,73 +65,53 @@ file_name_10 = "./10_out_feature_points.txt-solved.txt"
 # sys.exit(0)
 
 all_files = [file_name_10, file_name_20, file_name_30, file_name_40, file_name_50, file_name_60, file_name_70, file_name_80, file_name_90, file_name_100]
+titles = ["10 Images", "20 Images", "30 Images", "40 Images", "50 Images", "60 Images", "70 Images", "80 Images", "90 Images", "100 Images"]
 
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-lmin = -1
-lmax = 5
-ax.set_xlim(lmin, 3)
-ax.set_ylim(lmin, 3)
-ax.set_zlim(0, lmax)
-point_args = {
-    's': 4,
-    'c': 'r',
-    'marker': 'o',
-}
-camera_args = {
-    'c': 'black',
-    'marker': 's',
-}
+fig = plt.figure(figsize=(12,5))
+for i, file in enumerate(all_files):
+    ax = fig.add_subplot(2, 5, i+1, projection='3d')
+    point_args = {
+        's': 4,
+        'c': 'r',
+        'marker': 'o',
+    }
+    camera_args = {
+        'c': 'black',
+        'marker': 's',
+    }
 
-# Create handles
-points = ax.scatter([], [], [], **point_args)
-cameras = ax.scatter([], [], [], **camera_args)
+    px, py, pz, cx, cy, cz = read_data(file)
+    # ax.scatter(px, py, pz, **point_args)
+    ax.scatter(cx, cy, cz, **camera_args)
+    ax.set_yticklabels([])
+    ax.set_xticklabels([])
+    ax.set_zticklabels([])
+    ax.set_title(titles[i])
+    ax.view_init(elev=50., azim=-20.)
 
-def update(i):
-    # Read the data 
-    px, py, pz, cx, cy, cz = read_data(all_files[i])
-    # Update points
-    points._offsets3d = (px, py, pz)
-    # Update cameras
-    cameras._offsets3d = (cx, cy, cz)
-    ax.set_xlabel('X')
-    ax.set_ylabel('Y')
-    ax.set_zlabel('Z')
-    ax.set_title('Num Images = '+str(10*(i+1)))
-    # Return handles
-    return points, cameras
+plt.show()
 
-slam_animation = animation.FuncAnimation(fig, update, len(all_files), interval=1000)
+# fig, axs = plt.subplots(5,2,figsize=(8,4))#, projection='3d')
+# axs = np.ravel(axs)
+# for i, ax in enumerate(axs):
+#     lmin = -1
+#     lmax = 5
+#     ax.set_xlim(lmin, 3)
+#     ax.set_ylim(lmin, 3)
+#     # ax.set_zlim(0, lmax)
+#     point_args = {
+#         's': 4,
+#         'c': 'r',
+#         'marker': 'o',
+#     }
+#     camera_args = {
+#         'c': 'black',
+#         'marker': 's',
+#     }
+#     px, py, pz, cx, cy, cz = read_data(all_files[i])
 
-slam_animation.save('tum_animation.mp4')
+#     # Create handles
+#     ax.scatter(px, py, pz, **point_args)
+#     ax.scatter(cx, cy, cz, **camera_args)
 
-
-
-
-
-
-
-
-# file_name = "./data_fake.txt"
-# file_name = "./solved-49-7776.txt"
-# file_name = "./problem-49-7776-pre.txt-solved.txt"
-# file_name = "./out_feature_points.txt-solved.txt"
-# file_name = "./five_images_out_feature_points.txt-solved.txt"
-# file_name = "./03_out_feature_points.txt-solved.txt"
-# file_name = "./02_five_images_out_feature_points.txt-solved.txt"
-
-# print(f"px:\n{max(px)}")
-# print(f"py:\n{max(py)}")
-# print(f"px:\n{max(pz)}")
-
-# print(f"cx:\n{max(cx)}")
-# print(f"cy:\n{max(cy)}")
-# print(f"cx:\n{max(cz)}")
-
-# print(f"px:\n{min(px)}")
-# print(f"py:\n{min(py)}")
-# print(f"px:\n{min(pz)}")
-
-# print(f"cx:\n{min(cx)}")
-# print(f"cy:\n{min(cy)}")
-# print(f"cx:\n{min(cz)}")
+# plt.show()
