@@ -1,3 +1,4 @@
+from os import read
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import animation
 import matplotlib.pyplot as plt
@@ -44,10 +45,11 @@ def plot_scattered_3d(px, py, pz, cx, cy, cz):
 
     plt.show()
 
-
+def get_dist(p1, p2):
+    sqrd_dist = np.sum((p1 - p2)**2, axis=0)
+    return np.sqrt(sqrd_dist)
 
 # 10 - 100
-all_images_file = "./all_out_feature_points.txt-solved.txt"
 file_name_100 = "./100_out_feature_points.txt-solved.txt"
 file_name_90 = "./90_out_feature_points.txt-solved.txt"
 file_name_80 = "./80_out_feature_points.txt-solved.txt"
@@ -59,51 +61,41 @@ file_name_30 = "./30_out_feature_points.txt-solved.txt"
 file_name_20 = "./20_out_feature_points.txt-solved.txt"
 file_name_10 = "./10_out_feature_points.txt-solved.txt"
 
-# px, py, pz, cx, cy, cz = read_data(all_images_file)
-# plot_scattered_3d(px, py, pz, cx, cy, cz)
-# import sys
-# sys.exit(0)
+gt = "/home/tannort5/Documents/prob_rob/slamdunk/datasets/rgbd_dataset_freiburg1_xyz/groundtruth.txt"  # ground truth path
 
 all_files = [file_name_10, file_name_20, file_name_30, file_name_40, file_name_50, file_name_60, file_name_70, file_name_80, file_name_90, file_name_100]
 
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-lmin = -1
-lmax = 5
-ax.set_xlim(lmin, 3)
-ax.set_ylim(lmin, 3)
-ax.set_zlim(0, lmax)
-point_args = {
-    's': 4,
-    'c': 'r',
-    'marker': 'o',
-}
-camera_args = {
-    'c': 'black',
-    'marker': 's',
-}
+_, _, _, cx, cy, cz = read_data(file_name_100)
 
-# Create handles
-points = ax.scatter([], [], [], **point_args)
-cameras = ax.scatter([], [], [], **camera_args)
+c_point = [np.array([x, y, z]) for x,y,z in zip(cx, cy, cz)]
 
-def update(i):
-    # Read the data 
-    px, py, pz, cx, cy, cz = read_data(all_files[i])
-    # Update points
-    points._offsets3d = (px, py, pz)
-    # Update cameras
-    cameras._offsets3d = (cx, cy, cz)
-    ax.set_xlabel('X')
-    ax.set_ylabel('Y')
-    ax.set_zlabel('Z')
-    ax.set_title('Num Images = '+str(10*(i+1)))
-    # Return handles
-    return points, cameras
+gx, gy, gz = [], [], []
+g_point = []
+with open(gt, 'r') as file:
+    for line in file:
+        line_lst = line.split()
+        gx.append(float(line_lst[1]))
+        gy.append(float(line_lst[2]))
+        gz.append(float(line_lst[3]))
+        g_point.append( np.array([float(line_lst[1]), float(line_lst[2]), float(line_lst[3])]) )
 
-slam_animation = animation.FuncAnimation(fig, update, len(all_files), interval=1000)
+closest_points = []
+for i, cp in enumerate(c_point):
+    min_dist = np.inf
+    max_dist = -np.inf
+    min_point = None
+    
+    for gp in g_point:
+        dist = get_dist(cp, gp)
+        if dist < min_dist:
+            min_dist = dist
+            min_point = gp
+        if dist > max_dist:
+            max_dist = dist
 
-slam_animation.save('tum_animation.mp4')
+    print(f"i: {i}\tMin dist: {min_dist}")
+    print(f"i: {i}\tMax dist: {max_dist}")
+    closest_points.append(min_point)
 
 
 
