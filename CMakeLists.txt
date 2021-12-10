@@ -41,6 +41,25 @@ target_link_libraries(
     Ceres::ceres
 )
 
+add_executable(
+    tumBundle
+    src/tum_bundle_adjustment.cpp
+)
+
+target_link_libraries(
+    tumBundle
+    PUBLIC
+    BundleAdjustment
+    ceres
+    Ceres::ceres
+)
+
+target_include_directories(
+    tumBundle
+    PUBLIC
+    "include"
+)
+
 option(MAKE_TESTS "Make tests" ON)
 
 if(${MAKE_TESTS})
